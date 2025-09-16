@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { CheckCircle, Leaf, Pill } from 'lucide-react';
 import type { SkinAnalysisOutput } from '@/ai/flows/skin-analysis-flow';
 
 function AnalysisDisplay() {
@@ -44,8 +46,6 @@ function AnalysisDisplay() {
     );
   }
 
-  const data = searchParams.get('data');
-
   return (
     <main className="flex min-h-screen flex-col items-center bg-gray-50 p-4 sm:p-8">
       <div className="w-full max-w-2xl">
@@ -58,9 +58,9 @@ function AnalysisDisplay() {
         <Card className="w-full shadow-lg mb-6">
           <CardHeader>
             <CardTitle className="text-2xl">{analysis.condition}</CardTitle>
+            <CardDescription>{analysis.explanation}</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <p className="text-gray-700">{analysis.explanation}</p>
             <div className="flex items-center gap-4">
               <div>
                 <h3 className="font-semibold text-gray-800">Severity</h3>
@@ -73,12 +73,51 @@ function AnalysisDisplay() {
                 <Badge variant="secondary">{analysis.stage}</Badge>
               </div>
             </div>
+
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="causes">
+                <AccordionTrigger>Possible Causes</AccordionTrigger>
+                <AccordionContent>
+                  <ul className="grid gap-3 pl-2">
+                    {analysis.possibleCauses.map((cause, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                        <p className="text-gray-700">{cause}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="vitamins">
+                <AccordionTrigger>Potential Vitamin Deficiencies</AccordionTrigger>
+                <AccordionContent>
+                    <ul className="grid gap-3 pl-2">
+                        {analysis.vitaminDeficiencies.map((vitamin, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                            <Pill className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                            <p className="text-gray-700">{vitamin}</p>
+                        </li>
+                        ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="remedies">
+                <AccordionTrigger>Natural Remedies</AccordionTrigger>
+                <AccordionContent>
+                  <ul className="grid gap-3 pl-2">
+                    {analysis.naturalRemedies.map((remedy, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                            <Leaf className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                            <p className="text-gray-700">{remedy}</p>
+                        </li>
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </CardContent>
-          <CardFooter className="flex-col items-stretch gap-4">
-            <Button onClick={() => router.push(`/analysis/causes?data=${data}`)}>View Possible Causes</Button>
-            <Button onClick={() => router.push(`/analysis/vitamins?data=${data}`)}>View Vitamin Deficiencies</Button>
-            <Button onClick={() => router.push(`/analysis/remedies?data=${data}`)}>View Natural Remedies</Button>
-            <Button onClick={() => router.push('/')} variant="outline">Analyze Another Image</Button>
+          <CardFooter>
+            <Button onClick={() => router.push('/')} variant="outline" className="w-full">Analyze Another Image</Button>
           </CardFooter>
         </Card>
         
@@ -89,7 +128,6 @@ function AnalysisDisplay() {
     </main>
   );
 }
-
 
 export default function AnalysisPage() {
   return (
