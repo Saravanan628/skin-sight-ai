@@ -2,25 +2,26 @@
 
 import { useState, useRef } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Upload } from 'lucide-react';
+import { Upload, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { analyzeSkin, SkinAnalysisOutput } from '@/ai/flows/skin-analysis-flow';
 
 export default function Home() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const { toast } = useToast();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      processFile(file);
     }
   };
 
@@ -32,23 +33,48 @@ export default function Home() {
     event.preventDefault();
     const file = event.dataTransfer.files?.[0];
     if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      processFile(file);
     }
   };
 
-  const handleAnalyzeClick = () => {
-    if (!imageFile) {
-      // This should not happen if the button is disabled
-      console.error("No image selected");
+  const processFile = (file: File) => {
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAnalyzeClick = async () => {
+    if (!imageFile || !previewUrl) {
+      toast({
+        title: "Error",
+        description: "Please select an image first.",
+        variant: "destructive",
+      });
       return;
     }
-    // TODO: Implement analysis logic
-    console.log("Analyzing image:", imageFile.name);
+
+    setIsAnalyzing(true);
+    try {
+      const analysisResult = await analyzeSkin({ photoDataUri: previewUrl });
+      
+      const analysisId = new Date().toISOString();
+      localStorage.setItem(analysisId, JSON.stringify(analysisResult));
+
+      router.push(`/analysis/${analysisId}`);
+
+    } catch (error) {
+      console.error("Analysis failed:", error);
+      toast({
+        title: "Analysis Failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -108,11 +134,18 @@ export default function Home() {
 
               <Button
                 onClick={handleAnalyzeClick}
-                disabled={!imageFile}
+                disabled={!imageFile || isAnalyzing}
                 className="w-full"
                 size="lg"
               >
-                Analyze Skin
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  'Analyze Skin'
+                )}
               </Button>
             </div>
           </CardContent>
