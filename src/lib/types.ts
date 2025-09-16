@@ -1,12 +1,10 @@
-export type AnalysisResult = {
-  disease: string;
-  explanation: string;
-  cures: string[];
-};
+import type { ExplainIdentifiedDiseaseOutput } from "@/ai/flows/explain-identified-disease";
+import type { SuggestNaturalCuresOutput } from "@/ai/flows/suggest-natural-cures";
 
-export type HistoryItem = {
+export type AnalysisResult = {
   id: string;
   image: string; // base64 data URL
-  date: string;
-  result: AnalysisResult;
+  disease: string;
+  explanation?: ExplainIdentifiedDiseaseOutput;
+  cures?: SuggestNaturalCuresOutput;
 };

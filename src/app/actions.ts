@@ -17,7 +17,7 @@ export async function identifyDisease(
   imageData: string
 ): Promise<{ disease: string }> {
   // Simulate network delay and processing time
-  await new Promise((resolve) => setTimeout(resolve, 2500));
+  await new Promise((resolve) => setTimeout(resolve, 1500));
 
   // In a real app, you would process the imageData and send it to your model.
   // Here, we just pick a random disease for demonstration purposes.
@@ -32,28 +32,20 @@ export async function identifyDisease(
   return { disease: identifiedDisease };
 }
 
-export async function getExplanation(
+export async function getFullAnalysis(
   diseaseName: string
-): Promise<ExplainIdentifiedDiseaseOutput> {
+): Promise<{
+  explanation: ExplainIdentifiedDiseaseOutput;
+  cures: SuggestNaturalCuresOutput;
+}> {
   try {
-    const result = await explainIdentifiedDisease({ diseaseName });
-    return result;
+    const [explanation, cures] = await Promise.all([
+      explainIdentifiedDisease({ diseaseName }),
+      suggestNaturalCures({ diseaseName }),
+    ]);
+    return { explanation, cures };
   } catch (error) {
-    console.error('Error getting explanation:', error);
-    return { explanation: 'Could not retrieve an explanation at this time.' };
-  }
-}
-
-export async function getNaturalCures(
-  diseaseName: string
-): Promise<SuggestNaturalCuresOutput> {
-  try {
-    const result = await suggestNaturalCures({ diseaseName });
-    return result;
-  } catch (error) {
-    console.error('Error getting natural cures:', error);
-    return {
-      naturalCures: ['Could not retrieve natural cures at this time.'],
-    };
+    console.error('Error getting full analysis:', error);
+    throw new Error('Could not retrieve the full analysis.');
   }
 }
