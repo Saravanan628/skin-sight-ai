@@ -2,15 +2,20 @@
 'use client';
 
 import { useState, useEffect, Suspense, useRef } from 'react';
+import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
-import { CheckCircle, Leaf, Pill, Send, Bot, User } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Textarea } from '@/components/ui/textarea';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
+import { CheckCircle, Leaf, Pill, Send, Bot, User, Save } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 
 import type { SkinAnalysisOutput } from '@/ai/flows/skin-analysis-flow';
 import { askFollowUp, type FollowUpInput } from '@/ai/flows/follow-up-flow';
@@ -20,10 +25,23 @@ type Message = {
     text: string;
 };
 
+export type JournalEntry = {
+    id: string;
+    date: string;
+    analysis: SkinAnalysisOutput;
+    photoDataUri: string;
+    notes: string;
+    symptomSeverity: number;
+};
+
+
 function AnalysisDisplay() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { toast } = useToast();
+
   const [analysis, setAnalysis] = useState<SkinAnalysisOutput | null>(null);
+  const [photoDataUri, setPhotoDataUri] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -31,17 +49,22 @@ function AnalysisDisplay() {
   const [isReplying, setIsReplying] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
+  const [notes, setNotes] = useState('');
+  const [symptomSeverity, setSymptomSeverity] = useState(5);
+  const [isSaving, setIsSaving] = useState(false);
+
   useEffect(() => {
     const data = searchParams.get('data');
     if (data) {
       try {
         const decodedData = atob(data);
         const parsedData = JSON.parse(decodedData);
-        setAnalysis(parsedData);
+        setAnalysis(parsedData.analysis);
+        setPhotoDataUri(parsedData.photoDataUri);
         setMessages([
           {
             role: 'bot',
-            text: `Hello! I have analyzed your image and provided the details above. Do you have any follow-up questions about the "${parsedData.condition}"?`,
+            text: `Hello! I have analyzed your image and provided the details above. Do you have any follow-up questions about the "${parsedData.analysis.condition}"?`,
           }
         ]);
       } catch (e) {
@@ -54,7 +77,6 @@ function AnalysisDisplay() {
   }, [searchParams]);
 
   useEffect(() => {
-    // Scroll to the bottom of the chat container when new messages are added
     if (chatContainerRef.current) {
         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
@@ -88,6 +110,43 @@ function AnalysisDisplay() {
     }
   };
 
+  const handleSaveToJournal = () => {
+      if (!analysis || !photoDataUri) return;
+      setIsSaving(true);
+      try {
+          const newEntry: JournalEntry = {
+              id: new Date().toISOString(),
+              date: new Date().toISOString(),
+              analysis,
+              photoDataUri,
+              notes,
+              symptomSeverity,
+          };
+
+          const existingJournal = JSON.parse(localStorage.getItem('skinJournal') || '[]');
+          const updatedJournal = [newEntry, ...existingJournal];
+          localStorage.setItem('skinJournal', JSON.stringify(updatedJournal));
+
+          toast({
+              title: "Saved to Journal",
+              description: "Your analysis and notes have been saved.",
+          });
+          
+          router.push('/journal');
+
+      } catch (e) {
+          console.error("Failed to save to journal:", e);
+          toast({
+              title: "Save Failed",
+              description: "Could not save the analysis to your journal.",
+              variant: "destructive",
+          });
+      } finally {
+          setIsSaving(false);
+      }
+  };
+
+
   if (error || !analysis) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center p-8 text-center bg-background">
@@ -113,26 +172,47 @@ function AnalysisDisplay() {
           </h1>
         </header>
 
+        <div className="grid md:grid-cols-2 gap-6 mb-6">
+            <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle>Image Analyzed</CardTitle>
+                </CardHeader>
+                <CardContent>
+                {photoDataUri && (
+                    <div className="relative w-full aspect-video rounded-md overflow-hidden border">
+                        <Image src={photoDataUri} alt="Analyzed skin condition" fill className="object-contain" />
+                    </div>
+                )}
+                </CardContent>
+            </Card>
+             <Card className="shadow-lg">
+                <CardHeader>
+                    <CardTitle className="text-2xl">{analysis.condition}</CardTitle>
+                    <CardDescription>{analysis.explanation}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex items-center gap-4">
+                    <div>
+                        <h3 className="font-semibold text-foreground">Severity</h3>
+                        <Badge variant={analysis.severity === 'Severe' ? 'destructive' : 'secondary'}>
+                        {analysis.severity}
+                        </Badge>
+                    </div>
+                    <div>
+                        <h3 className="font-semibold text-foreground">Stage</h3>
+                        <Badge variant="secondary">{analysis.stage}</Badge>
+                    </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+
         <Card className="w-full shadow-lg mb-6">
           <CardHeader>
-            <CardTitle className="text-2xl">{analysis.condition}</CardTitle>
-            <CardDescription>{analysis.explanation}</CardDescription>
+            <CardTitle>Detailed Analysis</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-4">
-            <div className="flex items-center gap-4">
-              <div>
-                <h3 className="font-semibold text-foreground">Severity</h3>
-                <Badge variant={analysis.severity === 'Severe' ? 'destructive' : 'secondary'}>
-                  {analysis.severity}
-                </Badge>
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Stage</h3>
-                <Badge variant="secondary">{analysis.stage}</Badge>
-              </div>
-            </div>
-
-            <Accordion type="single" collapsible className="w-full">
+          <CardContent>
+             <Accordion type="single" collapsible className="w-full" defaultValue="causes">
               <AccordionItem value="causes">
                 <AccordionTrigger>Possible Causes</AccordionTrigger>
                 <AccordionContent>
@@ -174,11 +254,47 @@ function AnalysisDisplay() {
               </AccordionItem>
             </Accordion>
           </CardContent>
-          <CardFooter>
-            <Button onClick={() => router.push('/')} variant="outline" className="w-full">Analyze Another Image</Button>
-          </CardFooter>
         </Card>
         
+        <Card className="w-full shadow-lg mb-6">
+            <CardHeader>
+                <CardTitle>Save to Journal</CardTitle>
+                <CardDescription>Add notes and track your symptoms before saving.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+                <div className="grid gap-2">
+                    <Label htmlFor="symptom-severity">Symptom Severity (0=Mild, 10=Severe)</Label>
+                    <div className="flex items-center gap-4">
+                      <Slider
+                        id="symptom-severity"
+                        min={0}
+                        max={10}
+                        step={1}
+                        value={[symptomSeverity]}
+                        onValueChange={(value) => setSymptomSeverity(value[0])}
+                      />
+                      <Badge variant="outline" className="w-12 justify-center">{symptomSeverity}</Badge>
+                    </div>
+                </div>
+                 <div className="grid gap-2">
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea 
+                        id="notes"
+                        placeholder="e.g., Started feeling itchy yesterday after hiking."
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                    />
+                </div>
+            </CardContent>
+            <CardFooter>
+                 <Button onClick={handleSaveToJournal} disabled={isSaving} className="w-full">
+                    <Save className="mr-2 h-4 w-4" />
+                    {isSaving ? "Saving..." : "Save to Journal"}
+                </Button>
+            </CardFooter>
+        </Card>
+
+
         <Card className="w-full shadow-lg">
           <CardHeader>
             <CardTitle>Ask a Follow-up</CardTitle>

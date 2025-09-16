@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Upload, Loader2 } from 'lucide-react';
+import { Upload, Loader2, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeSkin } from '@/ai/flows/skin-analysis-flow';
 
@@ -60,7 +60,7 @@ export default function Home() {
     try {
       const analysisResult = await analyzeSkin({ photoDataUri: previewUrl });
       
-      const data = btoa(JSON.stringify(analysisResult));
+      const data = btoa(JSON.stringify({ analysis: analysisResult, photoDataUri: previewUrl }));
       router.push(`/analysis?data=${data}`);
 
     } catch (error) {
@@ -83,26 +83,26 @@ export default function Home() {
             Skin-sight AI
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Upload an image of a skin condition to get an AI-powered analysis.
+            Your personal AI-powered skin health journal.
           </p>
         </header>
 
         <Card className="w-full shadow-lg">
           <CardHeader>
-            <CardTitle>Upload Your Image</CardTitle>
+            <CardTitle>Upload New Image</CardTitle>
             <CardDescription>
-              Choose a clear, well-lit photo of the skin area you are concerned about.
+              Choose a clear, well-lit photo to analyze and add to your journal.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-6">
               <div
-                className="relative flex flex-col items-center justify-center w-full p-10 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                className="relative flex flex-col items-center justify-center w-full p-10 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted transition-colors"
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <Upload className="w-10 h-10 text-gray-400 mb-4" />
+                <Upload className="w-10 h-10 text-muted-foreground mb-4" />
                 <p className="text-sm text-muted-foreground">
                   <span className="font-semibold">Click to upload</span> or drag and drop
                 </p>
@@ -129,22 +129,33 @@ export default function Home() {
                   </div>
                 </div>
               )}
+                <div className="flex flex-col sm:flex-row gap-4">
 
-              <Button
-                onClick={handleAnalyzeClick}
-                disabled={!imageFile || isAnalyzing}
-                className="w-full"
-                size="lg"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  'Analyze Skin'
-                )}
-              </Button>
+                    <Button
+                        onClick={handleAnalyzeClick}
+                        disabled={!imageFile || isAnalyzing}
+                        className="w-full"
+                        size="lg"
+                    >
+                        {isAnalyzing ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Analyzing...
+                        </>
+                        ) : (
+                        'Analyze Skin'
+                        )}
+                    </Button>
+                     <Button
+                        variant="outline"
+                        size="lg"
+                        className="w-full"
+                        onClick={() => router.push('/journal')}
+                        >
+                        <BookOpen className="mr-2 h-4 w-4" />
+                        View My Journal
+                    </Button>
+                </div>
             </div>
           </CardContent>
         </Card>
