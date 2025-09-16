@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef } from 'react';
@@ -58,9 +59,13 @@ export default function Home() {
 
     setIsAnalyzing(true);
     try {
+      // Store the large image data in localStorage
+      localStorage.setItem('analysisImage', previewUrl);
+      
       const analysisResult = await analyzeSkin({ photoDataUri: previewUrl });
       
-      const data = btoa(JSON.stringify({ analysis: analysisResult, photoDataUri: previewUrl }));
+      // Only pass the small analysis result in the URL
+      const data = btoa(JSON.stringify(analysisResult));
       router.push(`/analysis?data=${data}`);
 
     } catch (error) {
@@ -70,6 +75,8 @@ export default function Home() {
         description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
+      // Clear localStorage if analysis fails
+      localStorage.removeItem('analysisImage');
     } finally {
       setIsAnalyzing(false);
     }

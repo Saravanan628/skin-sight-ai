@@ -54,17 +54,20 @@ function AnalysisDisplay() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const data = searchParams.get('data');
-    if (data) {
+    const analysisDataString = searchParams.get('data');
+    const imageData = localStorage.getItem('analysisImage');
+
+    if (analysisDataString && imageData) {
       try {
-        const decodedData = atob(data);
-        const parsedData = JSON.parse(decodedData);
-        setAnalysis(parsedData.analysis);
-        setPhotoDataUri(parsedData.photoDataUri);
+        const decodedData = atob(analysisDataString);
+        const parsedAnalysis = JSON.parse(decodedData);
+        setAnalysis(parsedAnalysis);
+        setPhotoDataUri(imageData);
+
         setMessages([
           {
             role: 'bot',
-            text: `Hello! I have analyzed your image and provided the details above. Do you have any follow-up questions about the "${parsedData.analysis.condition}"?`,
+            text: `Hello! I have analyzed your image and provided the details above. Do you have any follow-up questions about the "${parsedAnalysis.condition}"?`,
           }
         ]);
       } catch (e) {
@@ -72,7 +75,13 @@ function AnalysisDisplay() {
         setError("Could not read analysis data. It might be corrupted.");
       }
     } else {
-        setError("Analysis data not found in URL.");
+        if (!analysisDataString) setError("Analysis data not found in URL.");
+        if (!imageData) setError("Image data not found. Please try analyzing again.");
+    }
+
+    // Clean up localStorage after use
+    return () => {
+        localStorage.removeItem('analysisImage');
     }
   }, [searchParams]);
 
