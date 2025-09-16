@@ -31,6 +31,8 @@ const SkinAnalysisOutputSchema = z.object({
     .string()
     .describe('The estimated stage of the condition (e.g., Early, Acute, Chronic).'),
   possibleCauses: z.array(z.string()).describe('A list of possible causes for the skin condition.'),
+  vitaminDeficiencies: z.array(z.string()).describe('A list of vitamin deficiencies that could be related to the condition.'),
+  naturalRemedies: z.array(z.string()).describe('A list of natural remedial measures for the condition.'),
 });
 export type SkinAnalysisOutput = z.infer<typeof SkinAnalysisOutputSchema>;
 
@@ -44,7 +46,7 @@ const prompt = ai.definePrompt({
   output: {schema: SkinAnalysisOutputSchema},
   prompt: `You are an expert dermatologist. Your task is to analyze the provided image of a skin condition and provide a diagnosis.
 
-Based on the image, identify the most likely skin condition, provide a brief explanation of what it is, estimate its severity (Mild, Moderate, or Severe), determine its current stage (e.g., Early, Acute, Chronic), and list the common possible causes.
+Based on the image, identify the most likely skin condition, provide a brief explanation of what it is, estimate its severity (Mild, Moderate, or Severe), determine its current stage (e.g., Early, Acute, Chronic), list common possible causes, identify potential vitamin deficiencies related to it, and suggest natural remedial measures.
 
 Present your analysis in the structured format requested.
 

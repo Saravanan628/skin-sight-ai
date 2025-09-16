@@ -2,12 +2,12 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Pill } from 'lucide-react';
 import type { SkinAnalysisOutput } from '@/ai/flows/skin-analysis-flow';
 
-function AnalysisDisplay() {
+function VitaminsDisplay() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [analysis, setAnalysis] = useState<SkinAnalysisOutput | null>(null);
@@ -18,7 +18,11 @@ function AnalysisDisplay() {
     if (data) {
       try {
         const decodedData = atob(data);
-        setAnalysis(JSON.parse(decodedData));
+        const parsedData: SkinAnalysisOutput = JSON.parse(decodedData);
+        if (!parsedData.vitaminDeficiencies) {
+          setError("Vitamin deficiencies are not available in the analysis data.");
+        }
+        setAnalysis(parsedData);
       } catch (e) {
         console.error("Failed to parse analysis data:", e);
         setError("Could not read analysis data. It might be corrupted.");
@@ -33,7 +37,7 @@ function AnalysisDisplay() {
       <main className="flex min-h-screen flex-col items-center justify-center p-8 text-center">
          <Card className="w-full max-w-lg">
             <CardHeader>
-                <CardTitle>Analysis Not Found</CardTitle>
+                <CardTitle>Could Not Load Vitamin Info</CardTitle>
                 <CardDescription>{error || "The analysis you are looking for does not exist or has expired."}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -44,44 +48,35 @@ function AnalysisDisplay() {
     );
   }
 
-  const data = searchParams.get('data');
-
   return (
     <main className="flex min-h-screen flex-col items-center bg-gray-50 p-4 sm:p-8">
       <div className="w-full max-w-2xl">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl text-center">
-            Analysis Result
+        <header className="mb-8 text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            Vitamin Deficiencies and {analysis.condition}
           </h1>
         </header>
 
         <Card className="w-full shadow-lg mb-6">
           <CardHeader>
-            <CardTitle className="text-2xl">{analysis.condition}</CardTitle>
+            <CardTitle>Potential Vitamin Deficiencies</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-4">
-            <p className="text-gray-700">{analysis.explanation}</p>
-            <div className="flex items-center gap-4">
-              <div>
-                <h3 className="font-semibold text-gray-800">Severity</h3>
-                <Badge variant={analysis.severity === 'Severe' ? 'destructive' : 'secondary'}>
-                  {analysis.severity}
-                </Badge>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-800">Stage</h3>
-                <Badge variant="secondary">{analysis.stage}</Badge>
-              </div>
-            </div>
+          <CardContent>
+            <ul className="grid gap-4">
+              {analysis.vitaminDeficiencies.map((vitamin, index) => (
+                <li key={index} className="flex items-start gap-3">
+                  <Pill className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                  <p className="text-gray-700">{vitamin}</p>
+                </li>
+              ))}
+            </ul>
           </CardContent>
-          <CardFooter className="flex-col items-stretch gap-4">
-            <Button onClick={() => router.push(`/analysis/causes?data=${data}`)}>View Possible Causes</Button>
-            <Button onClick={() => router.push(`/analysis/vitamins?data=${data}`)}>View Vitamin Deficiencies</Button>
-            <Button onClick={() => router.push(`/analysis/remedies?data=${data}`)}>View Natural Remedies</Button>
-            <Button onClick={() => router.push('/')} variant="outline">Analyze Another Image</Button>
-          </CardFooter>
         </Card>
         
+        <div className="text-center">
+            <Button onClick={() => router.back()}>Back to Analysis</Button>
+        </div>
+
         <footer className="mt-8 text-center text-sm text-gray-500">
             <p><strong>Disclaimer:</strong> This is an AI-generated analysis and not a substitute for professional medical advice. Please consult a qualified healthcare provider for any health concerns.</p>
         </footer>
@@ -91,10 +86,10 @@ function AnalysisDisplay() {
 }
 
 
-export default function AnalysisPage() {
+export default function VitaminsPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen flex-col items-center justify-center p-8">Loading analysis...</div>}>
-      <AnalysisDisplay />
+    <Suspense fallback={<div className="flex min-h-screen flex-col items-center justify-center p-8">Loading vitamin info...</div>}>
+      <VitaminsDisplay />
     </Suspense>
   );
 }
