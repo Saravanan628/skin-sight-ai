@@ -20,7 +20,7 @@ const SkinAnalysisInputSchema = z.object({
 });
 export type SkinAnalysisInput = z.infer<typeof SkinAnalysisInputSchema>;
 
-export const SkinAnalysisOutputSchema = z.object({
+const SkinAnalysisOutputSchema = z.object({
   condition: z.string().describe('The name of the identified skin condition.'),
   explanation: z
     .string()
