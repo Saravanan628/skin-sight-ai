@@ -1,29 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { SkinAnalysisOutput } from '@/ai/flows/skin-analysis-flow';
 
-export default function AnalysisPage() {
-  const params = useParams();
+function AnalysisDisplay() {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [analysis, setAnalysis] = useState<SkinAnalysisOutput | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
-
   useEffect(() => {
-    if (id) {
-      const storedData = localStorage.getItem(id);
-      if (storedData) {
-        setAnalysis(JSON.parse(storedData));
+    const data = searchParams.get('data');
+    if (data) {
+      try {
+        const decodedData = atob(data);
+        setAnalysis(JSON.parse(decodedData));
+      } catch (error) {
+        console.error("Failed to parse analysis data:", error);
       }
-      setLoading(false);
     }
-  }, [id]);
+    setLoading(false);
+  }, [searchParams]);
 
   if (loading) {
     return (
@@ -88,5 +89,14 @@ export default function AnalysisPage() {
         </footer>
       </div>
     </main>
+  );
+}
+
+
+export default function AnalysisPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen flex-col items-center justify-center p-8">Loading analysis...</div>}>
+      <AnalysisDisplay />
+    </Suspense>
   );
 }

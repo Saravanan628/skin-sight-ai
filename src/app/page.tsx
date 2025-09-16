@@ -60,10 +60,8 @@ export default function Home() {
     try {
       const analysisResult = await analyzeSkin({ photoDataUri: previewUrl });
       
-      const analysisId = new Date().toISOString();
-      localStorage.setItem(analysisId, JSON.stringify(analysisResult));
-
-      router.push(`/analysis/${analysisId}`);
+      const data = btoa(JSON.stringify(analysisResult));
+      router.push(`/analysis?data=${data}`);
 
     } catch (error) {
       console.error("Analysis failed:", error);
