@@ -78,11 +78,6 @@ function AnalysisDisplay() {
         if (!analysisDataString) setError("Analysis data not found in URL.");
         if (!imageData) setError("Image data not found. Please try analyzing again.");
     }
-
-    // Clean up localStorage after use
-    return () => {
-        localStorage.removeItem('analysisImage');
-    }
   }, [searchParams]);
 
   useEffect(() => {
@@ -141,6 +136,8 @@ function AnalysisDisplay() {
               description: "Your analysis and notes have been saved.",
           });
           
+          // Clean up the image from local storage only after it's successfully saved
+          localStorage.removeItem('analysisImage');
           router.push('/journal');
 
       } catch (e) {
@@ -381,6 +378,3 @@ export default function AnalysisPage() {
     </Suspense>
   );
 }
-
-
-    
