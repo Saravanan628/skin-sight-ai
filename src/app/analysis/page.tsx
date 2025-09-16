@@ -11,7 +11,7 @@ function AnalysisDisplay() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [analysis, setAnalysis] = useState<SkinAnalysisOutput | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const data = searchParams.get('data');
@@ -19,28 +19,22 @@ function AnalysisDisplay() {
       try {
         const decodedData = atob(data);
         setAnalysis(JSON.parse(decodedData));
-      } catch (error) {
-        console.error("Failed to parse analysis data:", error);
+      } catch (e) {
+        console.error("Failed to parse analysis data:", e);
+        setError("Could not read analysis data. It might be corrupted.");
       }
+    } else {
+        setError("Analysis data not found in URL.");
     }
-    setLoading(false);
   }, [searchParams]);
 
-  if (loading) {
-    return (
-      <main className="flex min-h-screen flex-col items-center justify-center p-8">
-        <p>Loading analysis...</p>
-      </main>
-    );
-  }
-  
-  if (!analysis) {
+  if (error || !analysis) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center p-8 text-center">
          <Card className="w-full max-w-lg">
             <CardHeader>
                 <CardTitle>Analysis Not Found</CardTitle>
-                <CardDescription>The analysis you are looking for does not exist or has expired.</CardDescription>
+                <CardDescription>{error || "The analysis you are looking for does not exist or has expired."}</CardDescription>
             </CardHeader>
             <CardContent>
                 <Button onClick={() => router.push('/')}>Return to Home</Button>

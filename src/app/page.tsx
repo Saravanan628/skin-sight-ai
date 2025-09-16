@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Upload, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { analyzeSkin, SkinAnalysisOutput } from '@/ai/flows/skin-analysis-flow';
+import { analyzeSkin } from '@/ai/flows/skin-analysis-flow';
 
 export default function Home() {
   const [imageFile, setImageFile] = useState<File | null>(null);
