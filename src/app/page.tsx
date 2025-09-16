@@ -76,13 +76,13 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4 sm:p-6 md:p-8">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-2xl">
         <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
             Skin-sight AI
           </h1>
-          <p className="mt-4 text-lg text-gray-600">
+          <p className="mt-4 text-lg text-muted-foreground">
             Upload an image of a skin condition to get an AI-powered analysis.
           </p>
         </header>
@@ -103,10 +103,10 @@ export default function Home() {
                 onClick={() => fileInputRef.current?.click()}
               >
                 <Upload className="w-10 h-10 text-gray-400 mb-4" />
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   <span className="font-semibold">Click to upload</span> or drag and drop
                 </p>
-                <p className="text-xs text-gray-500">PNG, JPG, or WEBP</p>
+                <p className="text-xs text-muted-foreground">PNG, JPG, or WEBP</p>
                 <Input
                   ref={fileInputRef}
                   type="file"

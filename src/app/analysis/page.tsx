@@ -47,10 +47,10 @@ function AnalysisDisplay() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-gray-50 p-4 sm:p-8">
+    <main className="flex min-h-screen flex-col items-center bg-background p-4 sm:p-8">
       <div className="w-full max-w-2xl">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl text-center">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-center">
             Analysis Result
           </h1>
         </header>
@@ -63,13 +63,13 @@ function AnalysisDisplay() {
           <CardContent className="grid gap-4">
             <div className="flex items-center gap-4">
               <div>
-                <h3 className="font-semibold text-gray-800">Severity</h3>
+                <h3 className="font-semibold text-foreground">Severity</h3>
                 <Badge variant={analysis.severity === 'Severe' ? 'destructive' : 'secondary'}>
                   {analysis.severity}
                 </Badge>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-800">Stage</h3>
+                <h3 className="font-semibold text-foreground">Stage</h3>
                 <Badge variant="secondary">{analysis.stage}</Badge>
               </div>
             </div>
@@ -82,7 +82,7 @@ function AnalysisDisplay() {
                     {analysis.possibleCauses.map((cause, index) => (
                       <li key={index} className="flex items-start gap-3">
                         <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                        <p className="text-gray-700">{cause}</p>
+                        <p className="text-muted-foreground">{cause}</p>
                       </li>
                     ))}
                   </ul>
@@ -95,7 +95,7 @@ function AnalysisDisplay() {
                         {analysis.vitaminDeficiencies.map((vitamin, index) => (
                         <li key={index} className="flex items-start gap-3">
                             <Pill className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                            <p className="text-gray-700">{vitamin}</p>
+                            <p className="text-muted-foreground">{vitamin}</p>
                         </li>
                         ))}
                   </ul>
@@ -108,7 +108,7 @@ function AnalysisDisplay() {
                     {analysis.naturalRemedies.map((remedy, index) => (
                         <li key={index} className="flex items-start gap-3">
                             <Leaf className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                            <p className="text-gray-700">{remedy}</p>
+                            <p className="text-muted-foreground">{remedy}</p>
                         </li>
                     ))}
                   </ul>
@@ -121,7 +121,7 @@ function AnalysisDisplay() {
           </CardFooter>
         </Card>
         
-        <footer className="mt-8 text-center text-sm text-gray-500">
+        <footer className="mt-8 text-center text-sm text-muted-foreground">
             <p><strong>Disclaimer:</strong> This is an AI-generated analysis and not a substitute for professional medical advice. Please consult a qualified healthcare provider for any health concerns.</p>
         </footer>
       </div>
