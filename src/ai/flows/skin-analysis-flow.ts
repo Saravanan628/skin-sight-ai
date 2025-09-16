@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A skin condition analysis AI agent.
@@ -19,7 +20,7 @@ const SkinAnalysisInputSchema = z.object({
 });
 export type SkinAnalysisInput = z.infer<typeof SkinAnalysisInputSchema>;
 
-const SkinAnalysisOutputSchema = z.object({
+export const SkinAnalysisOutputSchema = z.object({
   condition: z.string().describe('The name of the identified skin condition.'),
   explanation: z
     .string()

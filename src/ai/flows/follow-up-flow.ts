@@ -10,28 +10,46 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
-import { SkinAnalysisOutputSchema } from './skin-analysis-flow';
+import { SkinAnalysisOutput, SkinAnalysisOutputSchema } from './skin-analysis-flow';
 
-export const FollowUpInputSchema = z.object({
+const FollowUpInputSchema = z.object({
   analysis: SkinAnalysisOutputSchema.describe("The original skin analysis object."),
   question: z.string().describe("The user's follow-up question."),
   chatHistory: z.string().optional().describe("The history of the conversation so far."),
 });
 export type FollowUpInput = z.infer<typeof FollowUpInputSchema>;
 
-export const FollowUpOutputSchema = z.object({
+const FollowUpOutputSchema = z.object({
   answer: z.string().describe("The AI's answer to the follow-up question."),
 });
 export type FollowUpOutput = z.infer<typeof FollowUpOutputSchema>;
 
 
 export async function askFollowUp(input: FollowUpInput): Promise<FollowUpOutput> {
-  return followUpFlow(input);
+  // We need to pass the full SkinAnalysisOutput to the flow, but the prompt only needs a subset.
+  // We can't use the full SkinAnalysisOutputSchema in the prompt because it's not serializable.
+  const promptInput = {
+    ...input,
+    analysis: {
+      condition: input.analysis.condition,
+      explanation: input.analysis.explanation,
+      severity: input.analysis.severity,
+      stage: input.analysis.stage,
+      possibleCauses: input.analysis.possibleCauses,
+      vitaminDeficiencies: input.analysis.vitaminDeficiencies,
+      naturalRemedies: input.analysis.naturalRemedies,
+    }
+  }
+  
+  const result = await followUpFlow(promptInput as any);
+  return result;
 }
 
 const prompt = ai.definePrompt({
   name: 'followUpPrompt',
-  input: {schema: FollowUpInputSchema},
+  input: {
+    schema: FollowUpInputSchema
+  },
   output: {schema: FollowUpOutputSchema},
   prompt: `You are an expert dermatologist providing a follow-up consultation via chat.
 
