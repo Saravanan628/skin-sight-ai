@@ -11,8 +11,72 @@ import { Label } from '@/components/ui/label';
 import { Loader2, HeartPulse, Leaf } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { type JournalEntry } from '../analysis/page';
-import { recommendYoga, type YogaRecommendationOutput } from '@/ai/flows/yoga-recommendation-flow';
+import { recommendYoga, type YogaRecommendation, type YogaRecommendationOutput } from '@/ai/flows/yoga-recommendation-flow';
+import { generateImage } from '@/ai/flows/image-generation-flow';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function YogaPose({ pose }: { pose: YogaRecommendation }) {
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
+
+    useEffect(() => {
+        const generatePoseImage = async () => {
+            if (pose.imageHint) {
+                setIsGenerating(true);
+                try {
+                    const result = await generateImage({
+                        prompt: `A clear, simple illustration of a person doing the ${pose.poseName} (yoga pose), on a plain background.`,
+                    });
+                    if (result.imageUrl) {
+                        setImageUrl(result.imageUrl);
+                    }
+                } catch (error) {
+                    console.error('Image generation failed for pose:', pose.poseName, error);
+                } finally {
+                    setIsGenerating(false);
+                }
+            }
+        };
+        generatePoseImage();
+    }, [pose.imageHint, pose.poseName]);
+
+    return (
+        <AccordionItem value={pose.poseName}>
+            <AccordionTrigger className="text-lg hover:no-underline">
+                <div className="flex items-center gap-3">
+                    <HeartPulse className="h-5 w-5 text-primary" />
+                    {pose.poseName}
+                </div>
+            </AccordionTrigger>
+            <AccordionContent className="grid md:grid-cols-2 gap-6 pt-2">
+                <div className="relative w-full aspect-video rounded-md overflow-hidden border">
+                    {isGenerating && <Skeleton className="h-full w-full" />}
+                    {imageUrl && !isGenerating && (
+                        <Image
+                            src={imageUrl}
+                            alt={`Yoga pose: ${pose.poseName}`}
+                            fill
+                            className="object-cover"
+                            data-ai-hint={pose.imageHint}
+                        />
+                    )}
+                </div>
+                <div className="grid gap-4">
+                    <div>
+                        <h4 className="font-semibold mb-2">How to do it:</h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-line">{pose.description}</p>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold mb-2 flex items-center gap-2"><Leaf className="h-4 w-4 text-green-500" /> Benefits for your skin:</h4>
+                        <p className="text-sm text-muted-foreground">{pose.benefits}</p>
+                    </div>
+                </div>
+            </AccordionContent>
+        </AccordionItem>
+    )
+}
+
 
 export default function YogaFinderPage() {
     const [journal, setJournal] = useState<JournalEntry[]>([]);
@@ -132,35 +196,7 @@ export default function YogaFinderPage() {
                         <CardContent>
                            <Accordion type="single" collapsible className="w-full" defaultValue="pose-0">
                                 {recommendations.recommendations.map((rec, index) => (
-                                    <AccordionItem value={`pose-${index}`} key={index}>
-                                        <AccordionTrigger className="text-lg hover:no-underline">
-                                            <div className="flex items-center gap-3">
-                                                <HeartPulse className="h-5 w-5 text-primary" />
-                                                {rec.poseName}
-                                            </div>
-                                        </AccordionTrigger>
-                                        <AccordionContent className="grid md:grid-cols-2 gap-6 pt-2">
-                                            <div className="relative w-full aspect-video rounded-md overflow-hidden border">
-                                                <Image 
-                                                    src={rec.imageUrl} 
-                                                    alt={`Yoga pose: ${rec.poseName}`}
-                                                    fill
-                                                    className="object-cover"
-                                                    data-ai-hint={rec.imageHint}
-                                                />
-                                            </div>
-                                            <div className="grid gap-4">
-                                                <div>
-                                                    <h4 className="font-semibold mb-2">How to do it:</h4>
-                                                    <p className="text-sm text-muted-foreground whitespace-pre-line">{rec.description}</p>
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-semibold mb-2 flex items-center gap-2"><Leaf className="h-4 w-4 text-green-500" /> Benefits for your skin:</h4>
-                                                    <p className="text-sm text-muted-foreground">{rec.benefits}</p>
-                                                </div>
-                                            </div>
-                                        </AccordionContent>
-                                    </AccordionItem>
+                                    <YogaPose key={index} pose={rec} />
                                 ))}
                             </Accordion>
                         </CardContent>
