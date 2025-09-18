@@ -6,10 +6,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Loader2, Lightbulb, ShoppingBag, ExternalLink } from 'lucide-react';
+import { Loader2, Lightbulb, ShoppingBag, ExternalLink, Pill } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { type JournalEntry } from '../analysis/page';
 import { recommendProducts, type ProductRecommendationOutput } from '@/ai/flows/product-recommendation-flow';
@@ -17,7 +16,6 @@ import { recommendProducts, type ProductRecommendationOutput } from '@/ai/flows/
 export default function ProductFinderPage() {
     const [journal, setJournal] = useState<JournalEntry[]>([]);
     const [selectedJournalId, setSelectedJournalId] = useState<string | null>(null);
-    const [productDescription, setProductDescription] = useState('');
     const [isFinding, setIsFinding] = useState(false);
     const [recommendations, setRecommendations] = useState<ProductRecommendationOutput | null>(null);
 
@@ -29,7 +27,7 @@ export default function ProductFinderPage() {
         if (storedJournal.length === 0) {
             toast({
                 title: "Journal is Empty",
-                description: "You must have at least one journal entry to use the product finder.",
+                description: "You must have at least one journal entry to find treatments.",
                 variant: "destructive"
             });
             router.push('/journal');
@@ -40,10 +38,10 @@ export default function ProductFinderPage() {
     }, [router, toast]);
 
     const handleFindProductsClick = async () => {
-        if (!productDescription.trim() || !selectedJournalId) {
+        if (!selectedJournalId) {
             toast({
                 title: "Missing Information",
-                description: "Please select a journal entry and describe the product you're looking for.",
+                description: "Please select a journal entry.",
                 variant: "destructive",
             });
             return;
@@ -56,7 +54,6 @@ export default function ProductFinderPage() {
         setRecommendations(null);
         try {
             const result = await recommendProducts({
-                productDescription: productDescription,
                 skinCondition: selectedEntry.analysis.condition,
             });
             setRecommendations(result);
@@ -64,7 +61,7 @@ export default function ProductFinderPage() {
             console.error("Product recommendation failed:", error);
             toast({
                 title: "Recommendation Failed",
-                description: "Could not get product recommendations. Please try again.",
+                description: "Could not get treatment recommendations. Please try again.",
                 variant: "destructive",
             });
         } finally {
@@ -77,20 +74,20 @@ export default function ProductFinderPage() {
             <div className="w-full max-w-3xl mx-auto">
                 <header className="mb-8 flex items-center gap-4">
                     <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                        AI Product Finder
+                        AI Treatment Finder
                     </h1>
                 </header>
 
                 <Card className="w-full shadow-lg">
                     <CardHeader>
-                        <CardTitle>Find Skincare Products</CardTitle>
+                        <CardTitle>Find Suitable Treatments</CardTitle>
                         <CardDescription>
-                            Describe the type of product you need, and our AI will suggest options suitable for your condition.
+                            Our AI will suggest over-the-counter ointments or medicines suitable for your diagnosed condition.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="journal-entry">Base recommendation on which condition?</Label>
+                            <Label htmlFor="journal-entry">Select a diagnosed condition from your journal</Label>
                             <Select
                                 value={selectedJournalId || ''}
                                 onValueChange={setSelectedJournalId}
@@ -107,27 +104,17 @@ export default function ProductFinderPage() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        
-                         <div className="grid gap-2">
-                            <Label htmlFor="notes">What are you looking for?</Label>
-                            <Textarea 
-                                id="notes"
-                                placeholder="e.g., A gentle, non-foaming daily cleanser for sensitive skin."
-                                value={productDescription}
-                                onChange={(e) => setProductDescription(e.target.value)}
-                            />
-                        </div>
                     </CardContent>
                     <CardFooter>
                          <Button
                             onClick={handleFindProductsClick}
-                            disabled={!productDescription.trim() || !selectedJournalId || isFinding}
+                            disabled={!selectedJournalId || isFinding}
                             className="w-full"
                             size="lg"
                         >
                             {isFinding ? (
                                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Finding...</>
-                            ) : <><ShoppingBag className="mr-2 h-4 w-4" />Find Products</> }
+                            ) : <><Pill className="mr-2 h-4 w-4" />Find Treatments</> }
                         </Button>
                     </CardFooter>
                 </Card>
@@ -137,7 +124,7 @@ export default function ProductFinderPage() {
                         <CardHeader>
                             <CardTitle>AI Recommendations</CardTitle>
                             <CardDescription>
-                                Here are a few products that might work for you based on your request.
+                                Here are a few treatments that might work for you based on your selected condition.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-4">
@@ -145,7 +132,7 @@ export default function ProductFinderPage() {
                              <Card key={index} className="bg-muted/50">
                                <CardHeader className="flex flex-row justify-between items-start">
                                  <CardTitle className="text-lg flex items-center gap-3">
-                                   <ShoppingBag className="h-5 w-5 text-primary" />
+                                   <Pill className="h-5 w-5 text-primary" />
                                    {rec.productName}
                                   </CardTitle>
                                     <Button asChild variant="outline" size="sm">
@@ -165,7 +152,7 @@ export default function ProductFinderPage() {
                            ))}
                         </CardContent>
                          <CardFooter>
-                            <p className="text-xs text-muted-foreground text-center w-full">Disclaimer: These AI-generated recommendations are for informational purposes. Always patch-test new products and verify information with the seller.</p>
+                            <p className="text-xs text-muted-foreground text-center w-full">Disclaimer: These AI-generated recommendations are for informational purposes and not a substitute for professional medical advice. Always consult a healthcare provider.</p>
                          </CardFooter>
                     </Card>
                 )}

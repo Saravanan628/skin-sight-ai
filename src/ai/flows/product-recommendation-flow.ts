@@ -3,7 +3,7 @@
 /**
  * @fileOverview An AI flow for recommending skincare products.
  *
- * - recommendProducts - Recommends products based on a skin condition and user query.
+ * - recommendProducts - Recommends products based on a skin condition.
  * - ProductRecommendationInput - The input type for the recommendProducts function.
  * - ProductRecommendationOutput - The return type for the recommendProducts function.
  */
@@ -15,9 +15,6 @@ const ProductRecommendationInputSchema = z.object({
   skinCondition: z
     .string()
     .describe('The diagnosed skin condition (e.g., "Eczema").'),
-  productDescription: z
-    .string()
-    .describe('A user\'s description of the product they are looking for (e.g., "a gentle daily moisturizer").'),
 });
 export type ProductRecommendationInput = z.infer<typeof ProductRecommendationInputSchema>;
 
@@ -39,17 +36,16 @@ const prompt = ai.definePrompt({
   name: 'productRecommendationPrompt',
   input: {schema: ProductRecommendationInputSchema},
   output: {schema: ProductRecommendationOutputSchema},
-  prompt: `You are an expert skincare advisor and personal shopper. A user needs help finding a product that is suitable for their diagnosed skin condition.
+  prompt: `You are an expert dermatology assistant. A user needs help finding an over-the-counter treatment for their diagnosed skin condition.
 
-Your task is to recommend 3-5 real, commercially available skincare products based on the user's needs.
+Your task is to recommend 3-5 real, commercially available ointments or medicines suitable for the user's condition.
 
 For each product, you must provide:
 1. Its full brand and name.
-2. A brief, one-sentence reason why it's a good choice.
-3. A direct, working purchase link from a major online retailer (like Amazon, Sephora, Target, or the brand's official website). Ensure the links are valid and lead to the correct product page.
+2. A brief, one-sentence reason why it's a good choice for the condition.
+3. A direct, working purchase link from a major online retailer (like Amazon, CVS, Walgreens, or Target). Ensure the links are valid and lead to the correct product page.
 
 User's Diagnosed Skin Condition: {{{skinCondition}}}
-User's Request: "I am looking for... {{{productDescription}}}"
 
 Provide your recommendations now.`,
 });
