@@ -12,18 +12,18 @@ import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 
 const ImageGenerationInputSchema = z.object({
-  prompt: z.string().describe('The text prompt to generate an image from.'),
+  prompts: z.array(z.string()).describe('The text prompts to generate images from.'),
 });
 export type ImageGenerationInput = z.infer<typeof ImageGenerationInputSchema>;
 
 const ImageGenerationOutputSchema = z.object({
-  imageUrl: z
-    .string()
-    .describe('The data URI of the generated image.'),
+  imageUrls: z
+    .array(z.string())
+    .describe('The data URIs of the generated images.'),
 });
 export type ImageGenerationOutput = z.infer<typeof ImageGenerationOutputSchema>;
 
-export async function generateImage(
+export async function generateImages(
   input: ImageGenerationInput
 ): Promise<ImageGenerationOutput> {
   return imageGenerationFlow(input);
@@ -35,16 +35,24 @@ const imageGenerationFlow = ai.defineFlow(
     inputSchema: ImageGenerationInputSchema,
     outputSchema: ImageGenerationOutputSchema,
   },
-  async input => {
-    const {media} = await ai.generate({
-      model: 'googleai/gemini-1.5-flash-latest',
-      prompt: `Generate a clear, simple, high-quality illustration of a person performing the following yoga pose: ${input.prompt}. The style should be minimalist, on a plain, solid light-colored background, suitable for a health and wellness app tutorial.`,
+  async (input) => {
+    const imagePromises = input.prompts.map(prompt => 
+        ai.generate({
+            model: 'googleai/gemini-1.5-flash-latest',
+            prompt: `Generate a clear, simple, high-quality illustration of a person performing the following yoga pose: ${prompt}. The style should be minimalist, on a plain, solid light-colored background, suitable for a health and wellness app tutorial.`,
+        })
+    );
+
+    const results = await Promise.all(imagePromises);
+    
+    const imageUrls = results.map(result => {
+        if (result.media && result.media.url) {
+            return result.media.url;
+        }
+        // Return an empty string or a placeholder identifier for failed generations
+        return ''; 
     });
-    
-    if (!media || !media.url) {
-      throw new Error('Image generation failed to produce a valid image.');
-    }
-    
-    return {imageUrl: media.url};
+
+    return { imageUrls };
   }
 );

@@ -12,37 +12,11 @@ import { Loader2, HeartPulse, Leaf, ImageOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { type JournalEntry } from '../analysis/page';
 import { recommendYoga, type YogaRecommendation, type YogaRecommendationOutput } from '@/ai/flows/yoga-recommendation-flow';
-import { generateImage } from '@/ai/flows/image-generation-flow';
+import { generateImages } from '@/ai/flows/image-generation-flow';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
 
-function YogaPose({ pose }: { pose: YogaRecommendation }) {
-    const [imageUrl, setImageUrl] = useState<string | null>(null);
-    const [isGenerating, setIsGenerating] = useState(false);
-
-    useEffect(() => {
-        const generatePoseImage = async () => {
-            if (pose.imageHint) {
-                setIsGenerating(true);
-                try {
-                    const result = await generateImage({
-                        prompt: `A clear, simple illustration of a person doing the ${pose.poseName} (yoga pose), on a plain background.`,
-                    });
-                    if (result.imageUrl) {
-                        setImageUrl(result.imageUrl);
-                    }
-                } catch (error) {
-                    console.error('Image generation failed for pose:', pose.poseName, error);
-                    // Set imageUrl to null or a specific state to indicate failure
-                    setImageUrl(null);
-                } finally {
-                    setIsGenerating(false);
-                }
-            }
-        };
-        generatePoseImage();
-    }, [pose.imageHint, pose.poseName]);
-
+function YogaPose({ pose, imageUrl, isLoading }: { pose: YogaRecommendation, imageUrl: string | null, isLoading: boolean }) {
     return (
         <AccordionItem value={pose.poseName}>
             <AccordionTrigger className="text-lg hover:no-underline">
@@ -53,8 +27,8 @@ function YogaPose({ pose }: { pose: YogaRecommendation }) {
             </AccordionTrigger>
             <AccordionContent className="grid md:grid-cols-2 gap-6 pt-2">
                 <div className="relative w-full aspect-video rounded-md overflow-hidden border flex items-center justify-center bg-muted/50">
-                    {isGenerating && <Skeleton className="h-full w-full" />}
-                    {!isGenerating && imageUrl && (
+                    {isLoading && <Skeleton className="h-full w-full" />}
+                    {!isLoading && imageUrl && (
                         <Image
                             src={imageUrl}
                             alt={`Yoga pose: ${pose.poseName}`}
@@ -63,7 +37,7 @@ function YogaPose({ pose }: { pose: YogaRecommendation }) {
                             data-ai-hint={pose.imageHint}
                         />
                     )}
-                    {!isGenerating && !imageUrl && (
+                    {!isLoading && !imageUrl && (
                          <div className="flex flex-col items-center justify-center text-muted-foreground">
                             <ImageOff className="h-8 w-8 mb-2" />
                             <p className="text-sm">Image not available</p>
@@ -90,7 +64,9 @@ export default function YogaFinderPage() {
     const [journal, setJournal] = useState<JournalEntry[]>([]);
     const [selectedJournalId, setSelectedJournalId] = useState<string | null>(null);
     const [isFinding, setIsFinding] = useState(false);
+    const [isGeneratingImages, setIsGeneratingImages] = useState(false);
     const [recommendations, setRecommendations] = useState<YogaRecommendationOutput | null>(null);
+    const [imageUrls, setImageUrls] = useState<(string | null)[]>([]);
 
     const router = useRouter();
     const { toast } = useToast();
@@ -124,12 +100,37 @@ export default function YogaFinderPage() {
         if (!selectedEntry) return;
 
         setIsFinding(true);
+        setIsGeneratingImages(true);
         setRecommendations(null);
+        setImageUrls([]);
         try {
-            const result = await recommendYoga({
+            const yogaResult = await recommendYoga({
                 skinCondition: selectedEntry.analysis.condition,
             });
-            setRecommendations(result);
+            setRecommendations(yogaResult);
+            setIsFinding(false); // Text is done, now generate images
+
+            if (yogaResult && yogaResult.recommendations.length > 0) {
+                const prompts = yogaResult.recommendations.map(rec => `A clear, simple illustration of a person doing the ${rec.poseName} (yoga pose), on a plain background.`);
+                try {
+                    const imageResult = await generateImages({ prompts });
+                    setImageUrls(imageResult.imageUrls);
+                } catch (imgError) {
+                    console.error("Image generation failed:", imgError);
+                    toast({
+                        title: "Image Generation Failed",
+                        description: "Could not generate pose images. Displaying text only.",
+                        variant: "destructive",
+                    });
+                    // Create an empty array so it doesn't crash
+                    setImageUrls(new Array(yogaResult.recommendations.length).fill(null));
+                } finally {
+                     setIsGeneratingImages(false);
+                }
+            } else {
+                setIsGeneratingImages(false);
+            }
+
         } catch (error) {
             console.error("Yoga recommendation failed:", error);
             toast({
@@ -137,10 +138,12 @@ export default function YogaFinderPage() {
                 description: "Could not get yoga recommendations. Please try again.",
                 variant: "destructive",
             });
-        } finally {
             setIsFinding(false);
+            setIsGeneratingImages(false);
         }
     };
+
+    const isLoading = isFinding || isGeneratingImages;
 
     return (
         <main className="flex flex-1 flex-col p-4 sm:p-8">
@@ -181,18 +184,20 @@ export default function YogaFinderPage() {
                     <CardFooter>
                          <Button
                             onClick={handleFindPosesClick}
-                            disabled={!selectedJournalId || isFinding}
+                            disabled={!selectedJournalId || isLoading}
                             className="w-full"
                             size="lg"
                         >
-                            {isFinding ? (
-                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Finding Poses...</>
+                            {isLoading ? (
+                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                                {isFinding ? 'Finding Poses...' : 'Generating Images...'}
+                                </>
                             ) : <><HeartPulse className="mr-2 h-4 w-4" />Find Yoga Poses</> }
                         </Button>
                     </CardFooter>
                 </Card>
 
-                {recommendations && (
+                {recommendations && !isFinding && (
                     <Card className="w-full shadow-lg mt-6">
                         <CardHeader>
                             <CardTitle>Recommended Yoga Practice</CardTitle>
@@ -202,9 +207,14 @@ export default function YogaFinderPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                           <Accordion type="single" collapsible className="w-full">
+                           <Accordion type="single" collapsible className="w-full" defaultValue={recommendations.recommendations[0]?.poseName}>
                                 {recommendations.recommendations.map((rec, index) => (
-                                    <YogaPose key={index} pose={rec} />
+                                    <YogaPose 
+                                        key={index} 
+                                        pose={rec} 
+                                        imageUrl={imageUrls[index]}
+                                        isLoading={isGeneratingImages}
+                                    />
                                 ))}
                             </Accordion>
                         </CardContent>
