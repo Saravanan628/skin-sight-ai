@@ -33,6 +33,8 @@ function YogaPose({ pose }: { pose: YogaRecommendation }) {
                     }
                 } catch (error) {
                     console.error('Image generation failed for pose:', pose.poseName, error);
+                    // Set imageUrl to null or a specific state to indicate failure
+                    setImageUrl(null);
                 } finally {
                     setIsGenerating(false);
                 }

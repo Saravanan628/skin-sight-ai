@@ -19,7 +19,6 @@ export type ImageGenerationInput = z.infer<typeof ImageGenerationInputSchema>;
 const ImageGenerationOutputSchema = z.object({
   imageUrl: z
     .string()
-    .url()
     .describe('The data URI of the generated image.'),
 });
 export type ImageGenerationOutput = z.infer<typeof ImageGenerationOutputSchema>;
@@ -41,10 +40,11 @@ const imageGenerationFlow = ai.defineFlow(
       model: 'googleai/gemini-1.5-flash-latest',
       prompt: input.prompt,
     });
-    const url = media.url;
-    if (!url) {
-      throw new Error('Image generation failed to produce a URL.');
+    
+    if (!media || !media.url) {
+      throw new Error('Image generation failed to produce a valid image.');
     }
-    return {imageUrl: url};
+    
+    return {imageUrl: media.url};
   }
 );
