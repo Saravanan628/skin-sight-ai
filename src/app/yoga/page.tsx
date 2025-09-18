@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -138,14 +139,25 @@ export default function YogaFinderPage() {
                                                 {rec.poseName}
                                             </div>
                                         </AccordionTrigger>
-                                        <AccordionContent className="grid gap-4 pt-2">
-                                            <div>
-                                                <h4 className="font-semibold mb-2">How to do it:</h4>
-                                                <p className="text-sm text-muted-foreground whitespace-pre-line">{rec.description}</p>
+                                        <AccordionContent className="grid md:grid-cols-2 gap-6 pt-2">
+                                            <div className="relative w-full aspect-video rounded-md overflow-hidden border">
+                                                <Image 
+                                                    src={rec.imageUrl} 
+                                                    alt={`Yoga pose: ${rec.poseName}`}
+                                                    fill
+                                                    className="object-cover"
+                                                    data-ai-hint={rec.imageHint}
+                                                />
                                             </div>
-                                            <div>
-                                                <h4 className="font-semibold mb-2 flex items-center gap-2"><Leaf className="h-4 w-4 text-green-500" /> Benefits for your skin:</h4>
-                                                <p className="text-sm text-muted-foreground">{rec.benefits}</p>
+                                            <div className="grid gap-4">
+                                                <div>
+                                                    <h4 className="font-semibold mb-2">How to do it:</h4>
+                                                    <p className="text-sm text-muted-foreground whitespace-pre-line">{rec.description}</p>
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-semibold mb-2 flex items-center gap-2"><Leaf className="h-4 w-4 text-green-500" /> Benefits for your skin:</h4>
+                                                    <p className="text-sm text-muted-foreground">{rec.benefits}</p>
+                                                </div>
                                             </div>
                                         </AccordionContent>
                                     </AccordionItem>
