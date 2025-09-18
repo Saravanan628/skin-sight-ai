@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Home, Trash2, ArrowLeft, ScanLine } from 'lucide-react';
+import { Home, Trash2, ArrowLeft, ScanLine, ShoppingBag } from 'lucide-react';
 import { type JournalEntry } from '../analysis/page';
 import { format } from 'date-fns';
 import {
@@ -65,6 +65,10 @@ export default function JournalPage() {
                         My Skin Journal
                     </h1>
                      <div className="flex items-center gap-2">
+                        <Button variant="outline" onClick={() => router.push('/product-finder')} disabled={journal.length === 0}>
+                            <ShoppingBag className="mr-2 h-4 w-4" />
+                            Find Products
+                        </Button>
                         <Button variant="outline" onClick={() => router.push('/scanner')} disabled={journal.length === 0}>
                             <ScanLine className="mr-2 h-4 w-4" />
                             Scan Ingredients
