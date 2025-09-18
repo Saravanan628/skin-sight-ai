@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Loader2, HeartPulse, Leaf } from 'lucide-react';
+import { Loader2, HeartPulse, Leaf, ImageOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { type JournalEntry } from '../analysis/page';
 import { recommendYoga, type YogaRecommendation, type YogaRecommendationOutput } from '@/ai/flows/yoga-recommendation-flow';
@@ -50,9 +50,9 @@ function YogaPose({ pose }: { pose: YogaRecommendation }) {
                 </div>
             </AccordionTrigger>
             <AccordionContent className="grid md:grid-cols-2 gap-6 pt-2">
-                <div className="relative w-full aspect-video rounded-md overflow-hidden border">
+                <div className="relative w-full aspect-video rounded-md overflow-hidden border flex items-center justify-center bg-muted/50">
                     {isGenerating && <Skeleton className="h-full w-full" />}
-                    {imageUrl && !isGenerating && (
+                    {!isGenerating && imageUrl && (
                         <Image
                             src={imageUrl}
                             alt={`Yoga pose: ${pose.poseName}`}
@@ -60,6 +60,12 @@ function YogaPose({ pose }: { pose: YogaRecommendation }) {
                             className="object-cover"
                             data-ai-hint={pose.imageHint}
                         />
+                    )}
+                    {!isGenerating && !imageUrl && (
+                         <div className="flex flex-col items-center justify-center text-muted-foreground">
+                            <ImageOff className="h-8 w-8 mb-2" />
+                            <p className="text-sm">Image not available</p>
+                        </div>
                     )}
                 </div>
                 <div className="grid gap-4">
@@ -194,7 +200,7 @@ export default function YogaFinderPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                           <Accordion type="single" collapsible className="w-full" defaultValue="pose-0">
+                           <Accordion type="single" collapsible className="w-full">
                                 {recommendations.recommendations.map((rec, index) => (
                                     <YogaPose key={index} pose={rec} />
                                 ))}
@@ -202,7 +208,7 @@ export default function YogaFinderPage() {
                         </CardContent>
                          <CardFooter>
                             <p className="text-xs text-muted-foreground text-center w-full">Disclaimer: These AI-generated recommendations are for informational purposes. Consult with a qualified yoga instructor and healthcare provider before starting a new practice.</p>
-                         </CardFooter>
+                         </_CardFooter>
                     </Card>
                 )}
             </div>
