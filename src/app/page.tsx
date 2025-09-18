@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Upload, Loader2, BookOpen } from 'lucide-react';
+import { Upload, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeSkin } from '@/ai/flows/skin-analysis-flow';
 
@@ -83,22 +83,22 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4 sm:p-6 md:p-8">
-      <div className="w-full max-w-2xl">
+    <main className="flex flex-1 flex-col p-4 sm:p-6 md:p-8">
+      <div className="w-full max-w-2xl mx-auto">
         <header className="text-center mb-8">
           <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Skin-sight AI
+            New Skin Analysis
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Your personal AI-powered skin health journal.
+            Upload a photo to get an AI-powered analysis of your skin condition.
           </p>
         </header>
 
         <Card className="w-full shadow-lg">
           <CardHeader>
-            <CardTitle>Upload New Image</CardTitle>
+            <CardTitle>Upload Image</CardTitle>
             <CardDescription>
-              Choose a clear, well-lit photo to analyze and add to your journal.
+              Choose a clear, well-lit photo to analyze.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -152,15 +152,6 @@ export default function Home() {
                         ) : (
                         'Analyze Skin'
                         )}
-                    </Button>
-                     <Button
-                        variant="outline"
-                        size="lg"
-                        className="w-full"
-                        onClick={() => router.push('/journal')}
-                        >
-                        <BookOpen className="mr-2 h-4 w-4" />
-                        View My Journal
                     </Button>
                 </div>
             </div>

@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Home, Trash2, ArrowLeft, ScanLine, ShoppingBag } from 'lucide-react';
+import { Home, Trash2 } from 'lucide-react';
 import { type JournalEntry } from '../analysis/page';
 import { format } from 'date-fns';
 import {
@@ -51,32 +51,22 @@ export default function JournalPage() {
     };
 
     if (isLoading) {
-        return <div className="flex min-h-screen flex-col items-center justify-center p-8 bg-background">Loading journal...</div>
+        return <div className="flex flex-1 items-center justify-center p-8 bg-background">Loading journal...</div>
     }
 
     return (
-        <main className="flex min-h-screen flex-col items-center bg-background p-4 sm:p-8">
-            <div className="w-full max-w-4xl">
+        <main className="flex flex-1 flex-col p-4 sm:p-8">
+            <div className="w-full max-w-4xl mx-auto">
                  <header className="mb-8 flex justify-between items-center gap-4">
-                    <Button variant="outline" size="icon" onClick={() => router.push('/')}>
-                        <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-center flex-1">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-left flex-1">
                         My Skin Journal
                     </h1>
                      <div className="flex items-center gap-2">
-                        <Button variant="outline" onClick={() => router.push('/product-finder')} disabled={journal.length === 0}>
-                            <ShoppingBag className="mr-2 h-4 w-4" />
-                            Find Products
-                        </Button>
-                        <Button variant="outline" onClick={() => router.push('/scanner')} disabled={journal.length === 0}>
-                            <ScanLine className="mr-2 h-4 w-4" />
-                            Scan Ingredients
-                        </Button>
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="icon" disabled={journal.length === 0}>
-                                    <Trash2 className="h-4 w-4" />
+                                <Button variant="destructive" disabled={journal.length === 0}>
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete All
                                 </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>

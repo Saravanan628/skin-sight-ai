@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Loader2, ArrowLeft, Lightbulb, ShoppingBag, ExternalLink } from 'lucide-react';
+import { Loader2, Lightbulb, ShoppingBag, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { type JournalEntry } from '../analysis/page';
 import { recommendProducts, type ProductRecommendationOutput } from '@/ai/flows/product-recommendation-flow';
@@ -73,12 +73,9 @@ export default function ProductFinderPage() {
     };
 
     return (
-        <main className="flex min-h-screen flex-col items-center bg-background p-4 sm:p-8">
-            <div className="w-full max-w-3xl">
+        <main className="flex flex-1 flex-col p-4 sm:p-8">
+            <div className="w-full max-w-3xl mx-auto">
                 <header className="mb-8 flex items-center gap-4">
-                    <Button variant="outline" size="icon" onClick={() => router.push('/journal')}>
-                        <ArrowLeft className="h-4 w-4" />
-                    </Button>
                     <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                         AI Product Finder
                     </h1>

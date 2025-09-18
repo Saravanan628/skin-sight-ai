@@ -155,7 +155,7 @@ function AnalysisDisplay() {
 
   if (error || !analysis) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center p-8 text-center bg-background">
+      <main className="flex flex-1 items-center justify-center p-8 text-center bg-background">
          <Card className="w-full max-w-lg">
             <CardHeader>
                 <CardTitle>Analysis Not Found</CardTitle>
@@ -170,8 +170,8 @@ function AnalysisDisplay() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-background p-4 sm:p-8">
-      <div className="w-full max-w-3xl">
+    <main className="flex flex-1 flex-col p-4 sm:p-8">
+      <div className="w-full max-w-3xl mx-auto">
         <header className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-center">
             Analysis Result
@@ -373,7 +373,7 @@ function AnalysisDisplay() {
 
 export default function AnalysisPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen flex-col items-center justify-center p-8 bg-background">Loading analysis...</div>}>
+    <Suspense fallback={<div className="flex flex-1 items-center justify-center p-8 bg-background">Loading analysis...</div>}>
       <AnalysisDisplay />
     </Suspense>
   );

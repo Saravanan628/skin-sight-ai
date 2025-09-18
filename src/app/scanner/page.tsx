@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Upload, Loader2, ArrowLeft, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react';
+import { Upload, Loader2, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { type JournalEntry } from '../analysis/page';
 import { analyzeIngredients, type IngredientAnalysisOutput } from '@/ai/flows/ingredient-analysis-flow';
@@ -92,12 +92,9 @@ export default function ScannerPage() {
     };
 
     return (
-        <main className="flex min-h-screen flex-col items-center bg-background p-4 sm:p-8">
-            <div className="w-full max-w-3xl">
+        <main className="flex flex-1 flex-col p-4 sm:p-8">
+            <div className="w-full max-w-3xl mx-auto">
                 <header className="mb-8 flex items-center gap-4">
-                    <Button variant="outline" size="icon" onClick={() => router.push('/journal')}>
-                        <ArrowLeft className="h-4 w-4" />
-                    </Button>
                     <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                         Ingredient Scanner
                     </h1>
