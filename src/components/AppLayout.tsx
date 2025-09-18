@@ -17,7 +17,7 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Scan, BookOpen, ScanLine, ShoppingBag, Bot, PanelLeft } from 'lucide-react';
+import { Scan, BookOpen, ScanLine, ShoppingBag, Bot, PanelLeft, HeartPulse } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const menuItems = [
@@ -25,6 +25,7 @@ const menuItems = [
   { href: '/journal', label: 'My Skin Journal', icon: BookOpen },
   { href: '/scanner', label: 'Ingredient Scanner', icon: ScanLine },
   { href: '/product-finder', label: 'Product Finder', icon: ShoppingBag },
+  { href: '/yoga', label: 'Yoga Poses', icon: HeartPulse },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
