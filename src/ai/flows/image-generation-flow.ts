@@ -38,7 +38,7 @@ const imageGenerationFlow = ai.defineFlow(
   async input => {
     const {media} = await ai.generate({
       model: 'googleai/gemini-1.5-flash-latest',
-      prompt: input.prompt,
+      prompt: `Generate a clear, simple, high-quality illustration of a person performing the following yoga pose: ${input.prompt}. The style should be minimalist, on a plain, solid light-colored background, suitable for a health and wellness app tutorial.`,
     });
     
     if (!media || !media.url) {
