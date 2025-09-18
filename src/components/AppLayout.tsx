@@ -54,8 +54,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   tooltip={{ children: item.label }}
                 >
                   <Link href={item.href}>
-                      <item.icon />
-                      <span>{item.label}</span>
+                    <item.icon />
+                    <span>{item.label}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -77,11 +77,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 </Avatar>
                 <h2 className="text-md font-semibold tracking-tight">Skin-sight AI</h2>
             </div>
-            <SidebarTrigger asChild>
-                <Button variant="ghost" size="icon">
-                    <PanelLeft />
-                </Button>
-            </SidebarTrigger>
+            <SidebarTrigger />
         </header>
         {children}
     </SidebarInset>
