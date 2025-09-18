@@ -17,7 +17,7 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Scan, BookOpen, ScanLine, ShoppingBag, Bot } from 'lucide-react';
+import { Scan, BookOpen, ScanLine, ShoppingBag, Bot, PanelLeft } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const menuItems = [
@@ -78,12 +78,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <h2 className="text-md font-semibold tracking-tight">Skin-sight AI</h2>
             </div>
             <SidebarTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                <div className="flex size-5 flex-col justify-between">
-                    <div className="h-0.5 w-full rounded-sm bg-foreground" />
-                    <div className="h-0.5 w-full rounded-sm bg-foreground" />
-                    <div className="h-0.5 w-full rounded-sm bg-foreground" />
-                </div>
+                <Button variant="ghost" size="icon">
+                    <PanelLeft />
                 </Button>
             </SidebarTrigger>
         </header>
