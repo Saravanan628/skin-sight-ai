@@ -2,13 +2,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Loader2, ArrowLeft, Lightbulb, ShoppingBag } from 'lucide-react';
+import { Loader2, ArrowLeft, Lightbulb, ShoppingBag, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { type JournalEntry } from '../analysis/page';
 import { recommendProducts, type ProductRecommendationOutput } from '@/ai/flows/product-recommendation-flow';
@@ -145,11 +146,17 @@ export default function ProductFinderPage() {
                         <CardContent className="grid gap-4">
                            {recommendations.recommendations.map((rec, index) => (
                              <Card key={index} className="bg-muted/50">
-                               <CardHeader>
+                               <CardHeader className="flex flex-row justify-between items-start">
                                  <CardTitle className="text-lg flex items-center gap-3">
                                    <ShoppingBag className="h-5 w-5 text-primary" />
                                    {rec.productName}
                                   </CardTitle>
+                                    <Button asChild variant="outline" size="sm">
+                                      <Link href={rec.purchaseLink} target="_blank">
+                                        View Product
+                                        <ExternalLink className="ml-2 h-4 w-4" />
+                                      </Link>
+                                    </Button>
                                </CardHeader>
                                <CardContent>
                                   <p className="text-sm text-muted-foreground flex items-start gap-3">
@@ -161,7 +168,7 @@ export default function ProductFinderPage() {
                            ))}
                         </CardContent>
                          <CardFooter>
-                            <p className="text-xs text-muted-foreground text-center w-full">Disclaimer: These AI-generated recommendations are for informational purposes. Always patch-test new products.</p>
+                            <p className="text-xs text-muted-foreground text-center w-full">Disclaimer: These AI-generated recommendations are for informational purposes. Always patch-test new products and verify information with the seller.</p>
                          </CardFooter>
                     </Card>
                 )}
@@ -169,4 +176,3 @@ export default function ProductFinderPage() {
         </main>
     );
 }
-
