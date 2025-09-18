@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Home, Trash2, ArrowLeft } from 'lucide-react';
+import { Home, Trash2, ArrowLeft, ScanLine } from 'lucide-react';
 import { type JournalEntry } from '../analysis/page';
 import { format } from 'date-fns';
 import {
@@ -57,32 +57,38 @@ export default function JournalPage() {
     return (
         <main className="flex min-h-screen flex-col items-center bg-background p-4 sm:p-8">
             <div className="w-full max-w-4xl">
-                 <header className="mb-8 flex justify-between items-center">
+                 <header className="mb-8 flex justify-between items-center gap-4">
                     <Button variant="outline" size="icon" onClick={() => router.push('/')}>
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-center">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-center flex-1">
                         My Skin Journal
                     </h1>
-                     <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button variant="destructive" disabled={journal.length === 0}>
-                                <Trash2 className="mr-2 h-4 w-4" /> Clear All
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete all your journal entries.
-                            </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDeleteAll}>Continue</AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                     <div className="flex items-center gap-2">
+                        <Button variant="outline" onClick={() => router.push('/scanner')} disabled={journal.length === 0}>
+                            <ScanLine className="mr-2 h-4 w-4" />
+                            Scan Ingredients
+                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="icon" disabled={journal.length === 0}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete all your journal entries.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleDeleteAll}>Continue</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
 
                 </header>
 
@@ -90,7 +96,7 @@ export default function JournalPage() {
                     <Card className="text-center shadow-lg">
                         <CardHeader>
                             <CardTitle>Your Journal is Empty</CardTitle>
-                            <CardDescription>You haven't saved any skin analyses yet.</CardDescription>
+                            <CardDescription>You haven't saved any skin analyses yet. Scan your skin to get started.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <Button onClick={() => router.push('/')}>
