@@ -18,8 +18,8 @@ export type ImageGenerationInput = z.infer<typeof ImageGenerationInputSchema>;
 
 const ImageGenerationOutputSchema = z.object({
   imageUrls: z
-    .array(z.string())
-    .describe('The data URIs of the generated images.'),
+    .array(z.string().nullable())
+    .describe('The data URIs of the generated images. Can be null if generation fails.'),
 });
 export type ImageGenerationOutput = z.infer<typeof ImageGenerationOutputSchema>;
 
@@ -36,22 +36,20 @@ const imageGenerationFlow = ai.defineFlow(
     outputSchema: ImageGenerationOutputSchema,
   },
   async (input) => {
-    const imagePromises = input.prompts.map(prompt => 
-        ai.generate({
-            model: 'googleai/gemini-1.5-flash-latest',
-            prompt: `Generate a clear, simple, high-quality illustration of a person performing the following yoga pose: ${prompt}. The style should be minimalist, on a plain, solid light-colored background, suitable for a health and wellness app tutorial.`,
-        })
-    );
-
-    const results = await Promise.all(imagePromises);
-    
-    const imageUrls = results.map(result => {
-        if (result.media && result.media.url) {
-            return result.media.url;
-        }
-        // Return an empty string or a placeholder identifier for failed generations
-        return ''; 
+    const imagePromises = input.prompts.map(async (prompt) => {
+      try {
+        const result = await ai.generate({
+          model: 'googleai/gemini-1.5-flash-latest',
+          prompt: `Generate a clear, simple, high-quality illustration of a person performing the following yoga pose: ${prompt}. The style should be minimalist, on a plain, solid light-colored background, suitable for a health and wellness app tutorial.`,
+        });
+        return result.media?.url ?? null;
+      } catch (error) {
+        console.error(`Image generation failed for prompt: "${prompt}"`, error);
+        return null;
+      }
     });
+
+    const imageUrls = await Promise.all(imagePromises);
 
     return { imageUrls };
   }

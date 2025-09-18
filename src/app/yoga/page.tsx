@@ -111,7 +111,7 @@ export default function YogaFinderPage() {
             setIsFinding(false); // Text is done, now generate images
 
             if (yogaResult && yogaResult.recommendations.length > 0) {
-                const prompts = yogaResult.recommendations.map(rec => `A clear, simple illustration of a person doing the ${rec.poseName} (yoga pose), on a plain background.`);
+                const prompts = yogaResult.recommendations.map(rec => rec.imageHint);
                 try {
                     const imageResult = await generateImages({ prompts });
                     setImageUrls(imageResult.imageUrls);
