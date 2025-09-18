@@ -208,7 +208,7 @@ export default function YogaFinderPage() {
                         </CardContent>
                          <CardFooter>
                             <p className="text-xs text-muted-foreground text-center w-full">Disclaimer: These AI-generated recommendations are for informational purposes. Consult with a qualified yoga instructor and healthcare provider before starting a new practice.</p>
-                         </_CardFooter>
+                         </CardFooter>
                     </Card>
                 )}
             </div>
