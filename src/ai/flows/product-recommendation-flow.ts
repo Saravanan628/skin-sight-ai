@@ -25,7 +25,7 @@ const ProductRecommendationOutputSchema = z.object({
     recommendations: z.array(z.object({
         productName: z.string().describe("The full, real-world brand and name of the recommended product."),
         reason: z.string().describe("A brief, one-sentence explanation of why this product is a good recommendation for the user's condition and needs."),
-        purchaseLink: z.string().url().describe("A direct purchase link for the product on a major online retailer like Amazon, Walmart, or the brand's official website.")
+        purchaseLink: z.string().url().describe("A direct purchase link for the product on a major online retailer like Amazon, Sephora, Target, or the brand's official website.")
     })).describe("A list of 3-5 skincare product recommendations.")
 });
 export type ProductRecommendationOutput = z.infer<typeof ProductRecommendationOutputSchema>;
@@ -46,7 +46,7 @@ Your task is to recommend 3-5 real, commercially available skincare products bas
 For each product, you must provide:
 1. Its full brand and name.
 2. A brief, one-sentence reason why it's a good choice.
-3. A direct purchase link from a major online retailer (like Amazon, Sephora, Target, or the brand's official website).
+3. A direct, working purchase link from a major online retailer (like Amazon, Sephora, Target, or the brand's official website).
 
 User's Diagnosed Skin Condition: {{{skinCondition}}}
 User's Request: "I am looking for... {{{productDescription}}}"

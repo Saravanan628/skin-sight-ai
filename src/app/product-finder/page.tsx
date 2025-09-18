@@ -130,7 +130,7 @@ export default function ProductFinderPage() {
                         >
                             {isFinding ? (
                                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Finding...</>
-                            ) : <><ShoppingBag className="mr-2 h-4 w-4" />'Find Products'</> }
+                            ) : <><ShoppingBag className="mr-2 h-4 w-4" />Find Products</> }
                         </Button>
                     </CardFooter>
                 </Card>
