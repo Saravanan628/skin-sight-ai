@@ -111,3 +111,18 @@ After initialization and rules deployment, you can deploy the entire application
 firebase deploy
 ```
 After deployment, the Firebase CLI will provide the live URL of your SkinSight AI application.
+
+### 📸 Screenshots
+
+- **Main Page:**  
+![Main Page](./public/screenshots/main%20page.png)
+
+- **Analysis Result:**  
+![Analysis Result](./public/screenshots/analysis%20result.png)
+
+- **Medicine Suggestion:**  
+![Medicine Suggestion](./public/screenshots/medicine%20suggestion.png)
+
+- **Yoga Suggestion:**  
+![Yoga Suggestion](./public/screenshots/yoga%20suggestion.png)
+
