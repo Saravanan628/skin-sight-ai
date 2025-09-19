@@ -63,5 +63,51 @@ NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="YOUR_MEASUREMENT_ID"
 
 ```bash
 firebase deploy --only firestore
+```
+### Installation & Running
 
+1.  **Clone the repository:**
+    ```bash
+    git clone <your-repository-url>
+    cd <repository-name>
+    ```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+3.  **Run the development server:**
+     ```bash
+      npm run dev
+      ```
+      The application will start locally, usually at http://localhost:3000
 
+## Deployment to Firebase App Hosting
+
+This application is configured for easy deployment to **Firebase App Hosting**. Follow these steps to deploy your application.
+
+### 1. Install and Log in to Firebase CLI
+If you haven't already, install the Firebase Command Line Interface and log in.
+
+```bash
+npm install -g firebase-tools
+firebase login
+```
+### 2. Initialize Firebase in Your Project
+If you haven't yet connected your local project to Firebase, run the `init` command.
+
+```bash
+firebase init
+```
+-Select Firestore and Hosting.
+-Choose "Use an existing project" and select your Firebase project.
+-Accept default Firestore rules (firestore.rules).
+-Set your public directory (e.g., out or build for Next.js static export).
+-Skip GitHub continuous deployment if you want to deploy manually.
+
+### 3. Deploy Your Application
+After initialization and rules deployment, you can deploy the entire application with a single command:
+
+```bash
+firebase deploy
+```
+After deployment, the Firebase CLI will provide the live URL of your SkinSight AI application.
