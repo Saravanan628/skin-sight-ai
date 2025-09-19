@@ -52,7 +52,7 @@ Based on the image, identify the most likely skin condition, provide a brief exp
 Present your analysis in the structured format requested.
 
 Image: {{media url=photoDataUri}}`,
-  model: 'googleai/gemini-1.5-pro-latest'
+  model: 'googleai/gemini-1.5-flash-latest'
 });
 
 const skinAnalysisFlow = ai.defineFlow(
@@ -66,3 +66,4 @@ const skinAnalysisFlow = ai.defineFlow(
     return output!;
   }
 );
+
